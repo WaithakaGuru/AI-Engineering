@@ -62,4 +62,6 @@ func main() {
 	fmt.Println("Multiplying with mat3 of shape[2 3] {[1,2,3], [4,5,6.455]}")	
 	mat3 := matrix.NewMatrix([]matrix.Vector{{1,2,3},{4,5,6.455}})
 	fmt.Println(matrix1.MatMul(*mat3))
+
+	fmt.Println(matrix.IdentityMatrix(4))
 }

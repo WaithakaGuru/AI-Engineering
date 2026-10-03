@@ -190,6 +190,24 @@ func (m Matrix) Inverse2X2() (*Matrix, error) {
 	return NewMatrix(m.Vals), nil
 }
 
+func IdentityMatrix(dim int) *Matrix {
+	vec := make([]Vector, dim)
+	for row :=range dim {
+		for col := range dim {
+			if row == col {vec[row] = append(vec[row], 1)
+			}else {vec[row] = append(vec[row], 0)}
+		}
+	}
+	return NewMatrix(vec)
+}
+
+// A trial to implement, the Inverse method of any square Matrix 
+func Inverse(m Matrix) (*Matrix) {
+	var vec []Vector = make([]Vector, m.Cols)
+
+	return NewMatrix(vec)
+}
+
 // Scale - scalar multiplication 
 func (m Matrix) Scale(scalar Pt) *Matrix{
 	for i := range m.Vals {
