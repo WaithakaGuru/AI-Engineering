@@ -4,9 +4,8 @@ package matrix
 
 //  some math constants
 const (
-	Pi = 3.14159265358979323846264338327950288
-	ConvRad = 180 / Pi  // 180 / Pi
-	ConvDeg = 1/ConvRad // Pi / 180 
+	Pi 		= 	3.14159265358979323846264338327950288
+	ConvRad = 	57.2957795130823208767981548141051703  // 180 / Pi
 )
 
 // Get the Sine of an angle 
@@ -44,7 +43,7 @@ func Tan(deg Pt) Pt{
 }
 
 func ConvertDegToRadian(deg Pt) Pt {
-	return deg * ConvDeg
+	return deg / ConvRad
 }
 func ConvertRadToDegree(rad Pt) Pt {
 	return rad * ConvRad

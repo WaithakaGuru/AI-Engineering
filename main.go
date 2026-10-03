@@ -69,4 +69,9 @@ func main() {
 	fmt.Println(matrix.Sin(60))
 	fmt.Println(matrix.ConvertDegToRadian(60))
 	fmt.Println(matrix.ConvertRadToDegree(1.0471976))
+
+	// Testing the JoinTOIdentityMatrix method 
+	mat4 := matrix.NewMatrix([]matrix.Vector{{1,2,3,4}, {5,6,7,8}, {9,1,2,3},{0,4,5,6}})
+	mat4 = mat4.JoinMatToIdentityMat()
+	fmt.Println(mat4)
 }

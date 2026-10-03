@@ -24,6 +24,7 @@ const(
 	ErrDETMatrixNotSquare = "Cannot find determinant of a non-square Matrix [Rows and Cols must be equal]"
 	ErrINVMatrixNot2by2 = "Cannot find the 2X2 inverse [The matrix must have a shape of (2ROWS by 2COLS)]"
 	ErrMulMatrixNotCompatible = "Failed to Multiply the matrices as they are incompatible [M1.Cols must be equal to M2.Rows]"
+	ErrINVMatrixNotSquare = "Cannot find the Inverse of a Non-square Matrix [M.Cols Must be Equal to M.Rows]"
 )
 
 
@@ -202,11 +203,81 @@ func IdentityMatrix(dim int) *Matrix {
 }
 
 // A trial to implement, the Inverse method of any square Matrix 
-func Inverse(m Matrix) (*Matrix) {
-	var vec []Vector = make([]Vector, m.Cols)
+func (m Matrix) Inverse() (*Matrix, error) {
+	// Check if the Matrix is a Square 
+	if m.Cols != m.Rows {return nil, MError(ErrINVMatrixNotSquare) }
 
-	return NewMatrix(vec)
+	n := m.Cols // original column count 
+	var vec []Vector = make([]Vector, m.Cols)
+	m = *m.JoinMatToIdentityMat()
+
+	for col := range n {
+		// find the pivot 
+		pivot := col 
+
+		for row := col + 1; row < n; row++ {
+			if abs(m.Vals[row][col]) > abs(m.Vals[pivot][col]){
+				pivot = row
+			}
+		}
+
+		// put pivot Row in position 
+		if pivot != col {m = swapRows(m, pivot, col)}
+
+		// make pivot = 1 
+		pivotValue := m.Vals[col][col]
+		m = scaleRow(m, col, 1/pivotValue)
+
+		// Eliminate column - if the column is a pivot column
+		for row := range n {
+			if row == col {continue}
+			factor := -m.Vals[row][col]
+			m = addRowMultiple(m, row, col, factor)
+		}
+	}
+
+	// extract the inverse part of the matrix 
+	for i := range n {
+		vec[i] = make([]Pt, n) 
+		for j := range n {vec[i][j] = m.Vals[i][n+j]}
+	}
+	return NewMatrix(vec), nil
 }
+
+// Helper functions for the Inverse Function 
+
+// Augmenting the Matrix to Identity Matrix 
+func (m Matrix) JoinMatToIdentityMat() *Matrix {
+	IdtMat := IdentityMatrix(m.Cols)
+	for i := range m.Vals {
+		m.Vals[i] = append(m.Vals[i], IdtMat.Vals[i]...)
+	}
+	return NewMatrix(m.Vals)
+}
+
+func swapRows(m Matrix, row1,row2 int) Matrix {
+	m.Vals[row1], m.Vals[row2] = m.Vals[row2], m.Vals[row1]
+	return m
+}
+
+func scaleRow(m Matrix, row int, scalar Pt) Matrix{
+	for i := range m.Vals[row] {
+		m.Vals[row][i] *= scalar
+	}
+	return m
+}
+
+func addRowMultiple(m Matrix, row, col int, multiple Pt) Matrix {
+
+	return m 
+}
+
+func abs(val Pt) Pt {
+	if val < 0 {return -1 * val}
+	return val
+}
+
+//-- End of Helper functions --//
 
 // Scale - scalar multiplication 
 func (m Matrix) Scale(scalar Pt) *Matrix{
