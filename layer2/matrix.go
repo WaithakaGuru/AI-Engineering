@@ -50,7 +50,7 @@ var(
 
 )
 
-type Pt float32
+type Pt float64
 
 type Vector []Pt 
 

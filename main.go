@@ -63,5 +63,10 @@ func main() {
 	mat3 := matrix.NewMatrix([]matrix.Vector{{1,2,3},{4,5,6.455}})
 	fmt.Println(matrix1.MatMul(*mat3))
 
-	fmt.Println(matrix.IdentityMatrix(4))
+	fmt.Println(matrix.IdentityMatrix(4))  
+
+	// testing the trigonometry functions 
+	fmt.Println(matrix.Sin(60))
+	fmt.Println(matrix.ConvertDegToRadian(60))
+	fmt.Println(matrix.ConvertRadToDegree(1.0471976))
 }
