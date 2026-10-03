@@ -1,5 +1,9 @@
 package matrix
 
+import (
+	"math"
+)
+
 // Errors, for some common cases that may occur during matrix transforamtions and calcs
 
 type MatError struct{
@@ -49,6 +53,84 @@ var(
 type Pt float32
 
 type Vector []Pt 
+
+// Add some methods to the vector Type 
+
+// Sum of PointSquared then find the Squareroot of the whole 
+func(v Vector) Magnitude()Pt {
+	var mag Pt = 0 
+	for _, point :=  range v {
+		mag += point*point
+	}
+	return Pt(math.Sqrt(float64(mag)))
+}
+
+func (v Vector) Normalize() *Vector {
+	var vec Vector = []Pt{ };
+	var mag Pt = v.Magnitude(); 
+	for _, point := range v {vec = append(vec, point/mag)}
+	return &vec
+}
+
+// multiply vector by a scalar 
+func (v Vector) Scale(scalar Pt) *Vector {
+	var vec Vector = []Pt{}
+	for _, point := range v { point *= scalar; vec = append(vec, point)}
+	return &vec 
+}
+
+// Dimension of the Vector 
+func (v Vector) Dimension() int{return len(v)}
+
+// Sum of 2 vectors 
+func(v Vector) Sum(other Vector) *Vector {
+	var vec Vector = []Pt{}
+	// ensure the vectors are of equal dimension 
+	v, other = equalizeDim(v, other, 0)
+	for i, point :=range v {vec = append(vec, point + other[i])}
+	return &vec
+}
+
+// Difference of two vectors
+func(v Vector) Sub(other Vector) * Vector {
+	var vec Vector = []Pt{}
+	v, other = equalizeDim(v,other, 0)
+	for i, point := range v {vec = append(vec, point - other[i])}
+	return &vec 
+}
+ 
+// find the Dot Product of two vectors 
+func(v Vector) Dot(other Vector) Pt {
+	// ensure the Vectors are of same Dimension
+	v, other = equalizeDim(v,other,1);
+	var dotP Pt = 0 
+	for i, point := range v {dotP += point * other[i]}
+	return dotP
+}
+
+// find the cosine similarity of 2 vectors 
+func(v Vector) CosineSim(other Vector) Pt {
+	return v.Dot(other) / (v.Magnitude() * other.Magnitude())
+}
+
+// find ProjectOnto
+func(v Vector) ProjectOnto(other Vector) *Vector {
+	scalar := v.Dot(other) / other.Dot(other) 
+	return other.Scale(scalar)
+}
+
+func equalizeDim(vec1, vec2 Vector, filler Pt) (Vector, Vector) {
+	pad := func(vec Vector, n int) Vector{
+		for range n {vec = append(vec, filler)}
+		return vec
+	}
+	if len(vec1) != len(vec2) {
+		if len(vec1) > len(vec2) {pad(vec2, len(vec1)-len(vec2))
+		}else{pad(vec1, len(vec2)-len(vec1))}
+	}
+	return vec1, vec2
+}
+
 
 type Matrix struct {
 	Vals []Vector 
