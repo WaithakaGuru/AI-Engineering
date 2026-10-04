@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -202,7 +203,7 @@ func IdentityMatrix(dim int) *Matrix {
 	return NewMatrix(vec)
 }
 
-// A trial to implement, the Inverse method of any square Matrix 
+// A trial to implement, the Inverse method of any square Matrix --[Gauss-Jordan Elimination]
 func (m Matrix) Inverse() (*Matrix, error) {
 	// Check if the Matrix is a Square 
 	if m.Cols != m.Rows {return nil, MError(ErrINVMatrixNotSquare) }
@@ -220,21 +221,26 @@ func (m Matrix) Inverse() (*Matrix, error) {
 				pivot = row
 			}
 		}
-
+		fmt.Println("before swap \n", m.Vals)
 		// put pivot Row in position 
 		if pivot != col {m = swapRows(m, pivot, col)}
+		fmt.Println("after swap \n", m.Vals)
 
 		// make pivot = 1 
 		pivotValue := m.Vals[col][col]
 		m = scaleRow(m, col, 1/pivotValue)
+		fmt.Println("After make Pivot value 1: \n", m.Vals)
 
 		// Eliminate column - if the column is a pivot column
 		for row := range n {
 			if row == col {continue}
 			factor := -m.Vals[row][col]
+			fmt.Println("Row MultipleFactor -> ", factor)
 			m = addRowMultiple(m, row, col, factor)
 		}
 	}
+	
+	fmt.Println(m)
 
 	// extract the inverse part of the matrix 
 	for i := range n {
@@ -267,8 +273,11 @@ func scaleRow(m Matrix, row int, scalar Pt) Matrix{
 	return m
 }
 
-func addRowMultiple(m Matrix, row, col int, multiple Pt) Matrix {
-
+// for example R2 <- R2[targetRow] + Multiple.R1[targetRow] // e.g R3 <- R3 + 2.5R1
+func addRowMultiple(m Matrix, targetRow, factorRow  int, multiple Pt) Matrix {
+	for i, value := range m.Vals[factorRow] {
+		m.Vals[targetRow][i] +=(value* multiple)
+	}
 	return m 
 }
 
@@ -276,7 +285,6 @@ func abs(val Pt) Pt {
 	if val < 0 {return -1 * val}
 	return val
 }
-
 //-- End of Helper functions --//
 
 // Scale - scalar multiplication 
