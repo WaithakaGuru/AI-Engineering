@@ -152,7 +152,7 @@ func NewMatrix (mat []Vector) *Matrix {
 
 // Det, and inverse of 2 by 2 
 // Det - Main Diagonal product - less diagonal product - the rows must be equals to cols 
-func (mat *Matrix) Determinant() (Pt, error) {
+func (mat *Matrix) Determinant2X2() (Pt, error) {
 	if mat.Cols != mat.Rows {return Null, MError(ErrDETMatrixNotSquare)}
 	// get the main and less diagonal products 
 	var main, less Pt = 1, 1;
@@ -179,7 +179,7 @@ func (mat Matrix) Transpose() *Matrix {
 // Inverse2X2 - swap main diagonal values, change sign of the other values, divide by Determinant
 func (mat Matrix) Inverse2X2() (*Matrix, error) {
 	if mat.Shape[0] != 2 || mat.Shape[1] != 2 {return nil, MError(ErrINVMatrixNot2by2) }
-	det, _ := mat.Determinant() //ignoring the error as it is already handled in Det() function
+	det, _ := mat.Determinant2X2() //ignoring the error as it is already handled in Det() function
 	mat.Vals[0][0],mat.Vals[1][1] = mat.Vals[1][1],mat.Vals[0][0]
 
 	for i := range mat.Vals {
