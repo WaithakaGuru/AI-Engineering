@@ -1,7 +1,6 @@
 package matrix
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -153,12 +152,12 @@ func NewMatrix (mat []Vector) *Matrix {
 
 // Det, and inverse of 2 by 2 
 // Det - Main Diagonal product - less diagonal product - the rows must be equals to cols 
-func (m *Matrix) Determinant() (Pt, error) {
-	if m.Cols != m.Rows {return Null, MError(ErrDETMatrixNotSquare)}
+func (mat *Matrix) Determinant() (Pt, error) {
+	if mat.Cols != mat.Rows {return Null, MError(ErrDETMatrixNotSquare)}
 	// get the main and less diagonal products 
 	var main, less Pt = 1, 1;
-	var i, j int = 0, m.Cols-1
-	for _, row := range m.Vals {
+	var i, j int = 0, mat.Cols-1
+	for _, row := range mat.Vals {
 		main *= row[i] 
 		less *= row[j]
 		i++; j--
@@ -167,29 +166,29 @@ func (m *Matrix) Determinant() (Pt, error) {
 }
 
 // Transpose 
-func (m Matrix) Transpose() *Matrix {
-	v := make([]Vector, m.Cols)
-	for i := range m.Vals {
-		for j :=0 ; j < m.Cols; j++ {
-			v[j] = append(v[j], m.Vals[i][j]) 
+func (mat Matrix) Transpose() *Matrix {
+	v := make([]Vector, mat.Cols)
+	for i := range mat.Vals {
+		for j :=0 ; j < mat.Cols; j++ {
+			v[j] = append(v[j], mat.Vals[i][j]) 
 		}
 	}
 	return NewMatrix(v)
 }
 
 // Inverse2X2 - swap main diagonal values, change sign of the other values, divide by Determinant
-func (m Matrix) Inverse2X2() (*Matrix, error) {
-	if m.Shape[0] != 2 || m.Shape[1] != 2 {return nil, MError(ErrINVMatrixNot2by2) }
-	det, _ := m.Determinant() //ignoring the error as it is already handled in Det() function
-	m.Vals[0][0],m.Vals[1][1] = m.Vals[1][1],m.Vals[0][0]
+func (mat Matrix) Inverse2X2() (*Matrix, error) {
+	if mat.Shape[0] != 2 || mat.Shape[1] != 2 {return nil, MError(ErrINVMatrixNot2by2) }
+	det, _ := mat.Determinant() //ignoring the error as it is already handled in Det() function
+	mat.Vals[0][0],mat.Vals[1][1] = mat.Vals[1][1],mat.Vals[0][0]
 
-	for i := range m.Vals {
-		for j:=0; j<m.Cols; j++{
-			if i != j{m.Vals[i][j] *= -1}
-			m.Vals[i][j] /= det
+	for i := range mat.Vals {
+		for j:=0; j<mat.Cols; j++{
+			if i != j{mat.Vals[i][j] *= -1}
+			mat.Vals[i][j] /= det
 		}
 	}
-	return NewMatrix(m.Vals), nil
+	return NewMatrix(mat.Vals), nil
 }
 
 func IdentityMatrix(dim int) *Matrix {
@@ -210,55 +209,51 @@ func (m Matrix) Inverse() (*Matrix, error) {
 
 	n := m.Cols // original column count 
 	var vec []Vector = make([]Vector, m.Cols)
-	m = *m.JoinMatToIdentityMat()
+	mat := CopyMatrix(m)
+	mat = *mat.JoinMatToIdentityMat()
 
 	for col := range n {
 		// find the pivot 
 		pivot := col 
 
 		for row := col + 1; row < n; row++ {
-			if abs(m.Vals[row][col]) > abs(m.Vals[pivot][col]){
+			if abs(mat.Vals[row][col]) > abs(mat.Vals[pivot][col]){
 				pivot = row
 			}
 		}
-		fmt.Println("before swap \n", m.Vals)
 		// put pivot Row in position 
-		if pivot != col {m = swapRows(m, pivot, col)}
-		fmt.Println("after swap \n", m.Vals)
+		if pivot != col {mat = swapRows(mat, pivot, col)}
 
 		// make pivot = 1 
-		pivotValue := m.Vals[col][col]
-		m = scaleRow(m, col, 1/pivotValue)
-		fmt.Println("After make Pivot value 1: \n", m.Vals)
+		pivotValue := mat.Vals[col][col]
+		mat = scaleRow(mat, col, 1/pivotValue)
 
-		// Eliminate column - if the column is a pivot column
+		// Eliminate column - if the column is a pivot column, jump iteration 
 		for row := range n {
 			if row == col {continue}
-			factor := -m.Vals[row][col]
-			fmt.Println("Row MultipleFactor -> ", factor)
-			m = addRowMultiple(m, row, col, factor)
+			factor := -mat.Vals[row][col]
+			mat = addRowMultiple(mat, row, col, factor)
 		}
 	}
-	
-	fmt.Println(m)
 
 	// extract the inverse part of the matrix 
 	for i := range n {
 		vec[i] = make([]Pt, n) 
-		for j := range n {vec[i][j] = m.Vals[i][n+j]}
+		for j := range n {vec[i][j] = mat.Vals[i][n+j]}
 	}
+	
 	return NewMatrix(vec), nil
 }
 
 // Helper functions for the Inverse Function 
 
 // Augmenting the Matrix to Identity Matrix 
-func (m Matrix) JoinMatToIdentityMat() *Matrix {
-	IdtMat := IdentityMatrix(m.Cols)
-	for i := range m.Vals {
-		m.Vals[i] = append(m.Vals[i], IdtMat.Vals[i]...)
+func (mat Matrix) JoinMatToIdentityMat() *Matrix {
+	IdtMat := IdentityMatrix(mat.Cols)
+	for i := range mat.Vals {
+		mat.Vals[i] = append(mat.Vals[i], IdtMat.Vals[i]...)
 	}
-	return NewMatrix(m.Vals)
+	return NewMatrix(mat.Vals)
 }
 
 func swapRows(m Matrix, row1,row2 int) Matrix {
@@ -274,8 +269,8 @@ func scaleRow(m Matrix, row int, scalar Pt) Matrix{
 }
 
 // for example R2 <- R2[targetRow] + Multiple.R1[targetRow] // e.g R3 <- R3 + 2.5R1
-func addRowMultiple(m Matrix, targetRow, factorRow  int, multiple Pt) Matrix {
-	for i, value := range m.Vals[factorRow] {
+func addRowMultiple(m Matrix, targetRow, pivotRow int, multiple Pt) Matrix {
+	for i, value := range m.Vals[pivotRow] {
 		m.Vals[targetRow][i] +=(value* multiple)
 	}
 	return m 
@@ -289,29 +284,41 @@ func abs(val Pt) Pt {
 
 // Scale - scalar multiplication 
 func (m Matrix) Scale(scalar Pt) *Matrix{
-	for i := range m.Vals {
-		for j := range m.Vals[i] {
-			m.Vals[i][j] *= scalar
+	mat := CopyMatrix(m)
+	for i:= 0; i < len(mat.Vals); i++ {
+		for j := range mat.Vals[i] {
+			mat.Vals[i][j] *= scalar
 		} 
 	}
-	return NewMatrix(m.Vals)
+	return NewMatrix(mat.Vals)
 }
 
 // Matrix multiplication - MatMul
-func (m Matrix) MatMul(mtx Matrix) (*Matrix, error) {
+func (mat Matrix) MatMul(mtx Matrix) (*Matrix, error) {
 	// check for compatibility of Matrix multiplication 
-	if m.Shape[1] != mtx.Shape[0] {return nil, MError(ErrMulMatrixNotCompatible)}
+	if mat.Shape[1] != mtx.Shape[0] {return nil, MError(ErrMulMatrixNotCompatible)}
 	// result Matrix 
-	var v = make([]Vector, m.Rows)
+	var v = make([]Vector, mat.Rows)
 	// The matrix Multiplication uses 3 intertwinned for loops 
-	for i := range m.Rows {
+	for i := range mat.Rows {
 		for j := range mtx.Cols {
 			var point Pt = 0
 			for k := range mtx.Rows {
-				point += m.Vals[i][k] * mtx.Vals[k][j]
+				point += mat.Vals[i][k] * mtx.Vals[k][j]
 			}
 			v[i] = append(v[i], point)
 		}
 	}
 	return NewMatrix(v),nil  
+}
+
+
+//  A func to deep copy a Matrix and return the copy 
+func CopyMatrix(m Matrix) Matrix {
+	var vec []Vector = make([]Vector, len(m.Vals))
+	for i := range len(vec) {
+		vec[i] = make([]Pt, len(m.Vals[i]))
+		copy(vec[i], m.Vals[i])
+	}
+	return *NewMatrix(vec)
 }

@@ -81,15 +81,15 @@ func main() {
 	// 	{11,12,13,14,15}, {16,17,18,19,20}, {21,22,23,24,25},
 	// })
 
-	// mat5 := matrix.NewMatrix([]matrix.Vector{{1,2},{2,1}})
-	// mat5Inv, _ := mat5.Inverse()
-	// fmt.Println("mat5",mat5)
-	// fmt.Println(mat5Inv)
+	mat5 := matrix.NewMatrix([]matrix.Vector{{1,2},{2,1}})
+	mat5Inv, _ := mat5.Inverse()
+	fmt.Println("mat5",mat5)
+	fmt.Println("mat5 INV", mat5Inv)
 
 	// // see whether A * A^-1 will give IdentityMat
-	// fmt.Println("THis and that")
-	// mat6, _ := mat5.MatMul(*mat5Inv) 
-	// fmt.Print(mat6)
+	fmt.Println("THis and that")
+	mat6, _ := mat5.MatMul(*mat5Inv) 
+	fmt.Print(mat6)
 
 	mat7 := matrix.NewMatrix([]matrix.Vector{{1,2},{2,1}})
 	mat7.Scale(2)
